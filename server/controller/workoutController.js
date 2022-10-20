@@ -1,5 +1,6 @@
 const Workout = require('../models/workoutModel');
 const mongoose = require('mongoose');
+const e = require('express');
 
 //get all workout
 const getallWorkout = async (req,res) =>{
@@ -23,6 +24,22 @@ const getWorkout = async (req,res) =>{
 //create a new workout
 const createWorkout = async (req,res) => {
     const {title,reps,load} = req.body;
+    
+    let emptyFields = []
+
+    if(!title){
+        emptyFields.push('title')
+    }
+    if(!load){
+        emptyFields.push('load')
+    }
+    if(!reps){
+        emptyFields.push('reps')
+    }
+    if(emptyFields.length>0){
+        return res.status(400).json({error:'Please fill all the fields',emptyFields})
+    }
+
     //add doc to db
     try{
         const workout = await Workout.create({title,reps,load});
@@ -35,7 +52,7 @@ const createWorkout = async (req,res) => {
 
 
 //delete a workout
-const deleteWorkout = async (req,res) =>{
+const deleteWorkout = async (req, res) =>{
     const {id} = req.params
     if(!mongoose.Types.ObjectId.isValid(id)){
         return res.status(404).json({error:"not found any workout"});
